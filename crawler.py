@@ -23,31 +23,34 @@ class Crawler:
 		if not self.no_verbose:
 			print("Parsing " + url)
 
-		response = urllib.request.urlopen(url)
-		page = str(response.read())
+		try:
+			response = urllib.request.urlopen(url)
+			page = str(response.read())
 
-		pattern = '<a [^>]*href=[\'|"](.*?)[\'"].*?>'
+			pattern = '<a [^>]*href=[\'|"](.*?)[\'"].*?>'
 
-		found_links = re.findall(pattern, page)
-		links = []
+			found_links = re.findall(pattern, page)
+			links = []
 
-		for link in found_links:
-			is_url = self.is_url(link)
+			for link in found_links:
+				is_url = self.is_url(link)
 
-			if is_url:
-				is_internal = self.is_internal(link)
+				if is_url:
+					is_internal = self.is_internal(link)
 
-				if is_internal:
-					self.add_url(link, links, self.exclude)
-					self.add_url(link, self.found_links, self.exclude)
+					if is_internal:
+						self.add_url(link, links, self.exclude)
+						self.add_url(link, self.found_links, self.exclude)
 
-		for link in links:
-			if link not in self.visited_links:
-				link = self.normalize(link)
+			for link in links:
+				if link not in self.visited_links:
+					link = self.normalize(link)
 
-				self.visited_links.append(link)
-				self.crawl(urljoin(self.url, link))
-
+					self.visited_links.append(link)
+					self.crawl(urljoin(self.url, link))
+		except:
+			print("404")
+			
 	def add_url(self, link, link_list, exclude_pattern=None):
 		link = self.normalize(link)
 
